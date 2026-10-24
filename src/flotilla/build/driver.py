@@ -93,27 +93,6 @@ def build_task(task: HarborTask, out_dir: Path, ctx: BuildContext) -> BuildOutco
         return BuildOutcome(task.name, "failed", reason=f"{type(exc).__name__}: {exc}", scan=result)
 
 
-
-def _env_content_hash(env_dir: Path) -> str:
-    """Deterministic content hash of the task environment directory.
-
-    Replaces the absolute-path hash for output tags so images published by a
-    preparation host (e.g. a dev machine validating tasks) are found by every
-    other host running the identical environment (e.g. the trainer reading its
-    run snapshot). Same bytes -> same tag; any edit -> new tag.
-    """
-    h = hashlib.sha256()
-    for path in sorted(env_dir.rglob("*")):
-        if path.is_file() and not path.is_symlink():
-            h.update(str(path.relative_to(env_dir)).encode())
-            h.update(path.read_bytes())
-        elif path.is_symlink():
-            h.update(str(path.relative_to(env_dir)).encode())
-            h.update(b"link:")
-            h.update(str(path.resolve()).encode())
-    return h.hexdigest()
-
-
 def _build(task: HarborTask, out_dir: Path, ctx: BuildContext, result: ScanResult) -> BuildOutcome:
     project = task.project
     plans = pin_images(plan_images(task.project, ctx.settings), ctx.registry)
@@ -123,7 +102,7 @@ def _build(task: HarborTask, out_dir: Path, ctx: BuildContext, result: ScanResul
     target_dir = out_dir / key
     manifest_path = target_dir / MANIFEST_NAME
     # Output tags are stable across source edits and independent of resources.
-    tag_key = _env_content_hash(task.env_dir)
+    tag_key = hashlib.sha256(str(task.env_dir.resolve()).encode()).hexdigest()
 
     resolution = resolve_images(plans, ctx.settings, ctx.registry)
     images = dict(resolution.images)
