@@ -118,6 +118,7 @@ def _unit(
             for m in layout.mounts.get(svc.name, ())
         ],
         privileged=svc.privileged,
+        runtime=svc.runtime,
     )
 
 

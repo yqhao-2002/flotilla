@@ -72,6 +72,7 @@ class Unit:
     restart: RestartPolicy = "no"
     mounts: tuple[Mount, ...] = ()
     privileged: bool = False
+    runtime: str | None = None  # declared runtime class ("kata"): created under it directly
 
 
 @dataclass(frozen=True)

@@ -35,6 +35,8 @@ def _platform(cfg: FlotillaConfig, clock: SystemClock, caps: Capabilities) -> Op
         caps=caps,
         execd=cfg.execd_settings(),
         extensions=cfg.opensandbox.extensions,
+        privileged_extensions=cfg.opensandbox.privileged_extensions,
+        fallback_extensions=cfg.opensandbox.health_fallback_extensions,
         create_fields=cfg.opensandbox.create_fields,
         group_extension=cfg.opensandbox.group_extension,
         create_timeout_s=cfg.timeouts.create,

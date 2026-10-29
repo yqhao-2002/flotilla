@@ -83,6 +83,7 @@ class Service:
     tmpfs: tuple[str, ...] = ()
     restart: RestartPolicy = "no"
     privileged: bool = False
+    runtime: str | None = None  # `x-runtime` compose extension (e.g. "kata")
     container_name: str | None = None
     hostname: str | None = None
     udp_ports: tuple[int, ...] = ()

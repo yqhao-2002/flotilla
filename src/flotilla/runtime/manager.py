@@ -88,6 +88,7 @@ class Manager:
             create_fields=cfg.opensandbox.create_fields,
             group_extension=cfg.opensandbox.group_extension,
             privileged_extensions=cfg.opensandbox.privileged_extensions,
+            fallback_extensions=cfg.opensandbox.health_fallback_extensions,
             create_timeout_s=cfg.timeouts.create,
         )
         self.launch_id = f"run-{uuid.uuid4().hex[:16]}"
@@ -228,7 +229,8 @@ class Manager:
                 settings = self.cfg.trial_settings()
                 if request.disable_internet:
                     settings = replace(settings, external=ExternalPolicy(mode="none"))
-                trial = Trial(self.platform, self.clock, self.anchor, self.reaper, plan, eid, settings)
+                trial = Trial(self.platform, self.clock, self.anchor, self.reaper, plan, eid, settings, health_fallback=bool(self.cfg.opensandbox.health_fallback_extensions),
+                health_fallback_after_s=self.cfg.opensandbox.health_fallback_after_s)
                 try:
                     run.ready = await trial.start()
                 finally:

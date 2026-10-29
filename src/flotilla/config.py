@@ -73,6 +73,14 @@ class OpenSandbox(_Model):
     capabilities: str  # capability report path (from `flotilla probe`); relative to the config file's directory
     extensions: dict[str, Any] = {}
     privileged_extensions: dict[str, Any] = {}
+    #: Merged into extensions when a unit is recreated after a healthcheck failure
+    #: (runtime fallback, e.g. {"runtimeClassName": "kata"} for JVM-in-container hangs).
+    health_fallback_extensions: dict[str, Any] = {}
+    #: First-attempt healthcheck cutoff (seconds) before the runtime fallback fires.
+    #: 0 disables the cutoff (the healthcheck's own retries must exhaust first).
+    #: Needed when healthchecks have very long retry budgets (e.g. 5s x 180) that
+    #: would otherwise exceed the start stage timeout and bypass the fallback.
+    health_fallback_after_s: float = 0.0
     network: OpenSandboxNetwork = OpenSandboxNetwork()
     execd: OpenSandboxExecd = OpenSandboxExecd()
     create_fields: dict[str, Any] = {}

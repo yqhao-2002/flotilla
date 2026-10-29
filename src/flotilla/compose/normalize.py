@@ -71,6 +71,7 @@ _REJECT = {
 _HANDLED = {
     "image", "build", "command", "entrypoint", "environment", "working_dir", "user", "healthcheck", "depends_on",
     "networks", "network_mode", "volumes", "tmpfs", "restart", "privileged", "hostname", "ports",
+    "x-runtime",
     "cpus", "mem_limit", "deploy",
 }  # fmt: skip
 
@@ -222,10 +223,25 @@ def _service(
         tmpfs=(*_tmpfs(raw.get("tmpfs"), f"{path}.tmpfs", c), *_long_tmpfs(raw.get("volumes"))),
         restart=_restart(raw.get("restart"), f"{path}.restart", c),
         privileged=_boolean(raw.get("privileged", False), f"{path}.privileged", c),
+        runtime=_runtime(raw.get("x-runtime"), f"{path}.x-runtime", c),
         container_name=_hostname(raw.get("container_name"), f"{path}.container_name", c),
         hostname=_hostname(raw.get("hostname"), f"{path}.hostname", c),
         udp_ports=_ports(raw.get("ports"), f"{path}.ports", c),
     )
+
+
+def _runtime(value: object, path: str, c: _Collector) -> str | None:
+    """`x-runtime` compose extension: declared runtime class for this service.
+
+    Only "kata" is meaningful today (kernel-exploit / JVM-hang isolation); the deployment
+    maps it onto its fallback extensions at create time.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str) and value == "kata":
+        return value
+    c.reject(path, "must be the string \"kata\" or absent")
+    return None
 
 
 def _boolean(value: object, path: str, c: _Collector) -> bool:

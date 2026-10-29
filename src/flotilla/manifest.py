@@ -55,6 +55,7 @@ class Unit(_Model):
     restart: RestartPolicy = "no"
     mounts: list[Mount] = []
     privileged: bool = False
+    runtime: str | None = None  # declared runtime class from the compose `x-runtime` extension
 
 
 class Network(_Model):
