@@ -118,6 +118,7 @@ class Build(_Model):
     mirror_images: bool = False
     target: str = ""
     image_replacements: dict[str, str] = {}
+    cache_images: bool = False
 
     def settings(self) -> BuildSettings:
         return BuildSettings(
@@ -125,6 +126,7 @@ class Build(_Model):
             mirror_images=self.mirror_images,
             target=self.target,
             image_replacements=self.image_replacements,
+            cache_images=self.cache_images,
         )
 
 
